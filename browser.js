@@ -3,6 +3,8 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 const { writeFileSync } = require('fs');
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const pageInfo = async (page) => {
     const title = await page.title();
     const url = await page.url();
@@ -14,11 +16,13 @@ const pageInfo = async (page) => {
 };
 
 const init = async (img_path, source_lang, target_lang) => {
+    let success = false;
     const chrome_path = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
     const browser = await puppeteer.launch({
         userDataDir: `./userData_qory`,
-        headless: 'new',
-        // executablePath: chrome_path,
+        // headless: 'new',
+        headless: false,
+        executablePath: chrome_path,
         // ignoreDefaultArgs: '--enable-automation',
     });
     const country_code = {
@@ -48,16 +52,18 @@ const init = async (img_path, source_lang, target_lang) => {
     // await page.waitForFileChooser();
     // const fileChooser = await page.click(upload_button_el);
 
-    setTimeout(() => {}, 1891);
+    await delay(291);
     const [fileChooser] = await Promise.all([
         page.waitForFileChooser(),
         page.click(upload_button_el),
         // some button that triggers file selection
     ]);
-    setTimeout(() => {}, 2340);
+    await delay(840);
+
+    console.log(`Uploading image... (${img_path})`);
     await fileChooser.accept([img_path]);
 
-    setTimeout(() => {}, 2998);
+    // await delay(2998);
     // await page._client.send('Page.setDownloadBehavior', {
     //     behavior: 'allow',
     //     downloadPath: 'C:\\Users\\qorya\\OneDrive\\OLD\\Documents\\Skripsi\\Experiment\\Deployment',
@@ -68,28 +74,45 @@ const init = async (img_path, source_lang, target_lang) => {
     const img_src = img_el.toString();
     console.log(img_src);
 
-    const img_page = await browser.newPage();
-    img_page.goto(img_src);
+    const img_name = `translate_${+new Date()}.jpg`;
+    try {
+        const img_page = await browser.newPage();
+        img_page.goto(img_src);
 
-    page.once('response', async (response) => {
-        console.log(response.url());
-        const imgBuffer = await response.buffer();
-        const milis = +new Date();
-        writeFileSync(`./downloads/translate_${milis}.jpg`, imgBuffer);
-        console.log('File downloaded');
-    });
-    await page.evaluate((url) => {
-        fetch(url);
-    }, img_src);
+        page.once('response', async (response) => {
+            console.log(response.url());
+            const imgBuffer = await response.buffer();
+            writeFileSync(`./downloads/${img_name}`, imgBuffer);
+            console.log('File downloaded');
+            success = true;
+        });
+        await page.evaluate((url) => {
+            fetch(url);
+        }, img_src);
+
+        await delay(5301);
+
+        await browser.close();
+
+        if (success) return img_name;
+        return false;
+    } catch (error) {
+        console.log('Error');
+        console.log(error);
+
+        return false;
+    }
 
     // const [fileChooser] = Promise.all([page.waitForFileChooser(), page.click(upload_button_el)]);
     // await fileChooser[0].accept([img_path]);
 
     // await fileChooser[0].accept([img_path]);
-
-    setTimeout(() => {}, 5501);
-
-    await browser.close();
 };
 
-init('C:\\Users\\qorya\\Downloads\\a.jpg', '', 'english');
+// init(
+//     'C:\\Users\\qorya\\Desktop\\r.eader\\Script\\Utility\\Image Translation\\downloads\\source\\source_1685485785532.jpeg',
+//     '',
+//     'english'
+// );
+
+module.exports = init;
