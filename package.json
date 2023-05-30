@@ -12,6 +12,8 @@
     "dependencies": {
         "@hapi/hapi": "^21.3.2",
         "@types/node": "^20.2.5",
-        "puppeteer": "^20.4.0"
+        "puppeteer": "^20.4.0",
+        "puppeteer-extra": "^3.3.6",
+        "puppeteer-extra-plugin-stealth": "^2.11.2"
     }
 }

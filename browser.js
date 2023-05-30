@@ -1,4 +1,6 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
 const { writeFileSync } = require('fs');
 
 const pageInfo = async (page) => {
@@ -12,7 +14,13 @@ const pageInfo = async (page) => {
 };
 
 const init = async (img_path, source_lang, target_lang) => {
-    const browser = await puppeteer.launch({ userDataDir: `./userData_qory`, headless: 'new' });
+    const chrome_path = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+    const browser = await puppeteer.launch({
+        userDataDir: `./userData_qory`,
+        headless: 'new',
+        // executablePath: chrome_path,
+        // ignoreDefaultArgs: '--enable-automation',
+    });
     const country_code = {
         japanese: 'ja',
         english: 'en',
@@ -40,15 +48,16 @@ const init = async (img_path, source_lang, target_lang) => {
     // await page.waitForFileChooser();
     // const fileChooser = await page.click(upload_button_el);
 
+    setTimeout(() => {}, 1891);
     const [fileChooser] = await Promise.all([
         page.waitForFileChooser(),
         page.click(upload_button_el),
         // some button that triggers file selection
     ]);
+    setTimeout(() => {}, 2340);
     await fileChooser.accept([img_path]);
 
-    page.c;
-    setTimeout(() => {}, 2000);
+    setTimeout(() => {}, 2998);
     // await page._client.send('Page.setDownloadBehavior', {
     //     behavior: 'allow',
     //     downloadPath: 'C:\\Users\\qorya\\OneDrive\\OLD\\Documents\\Skripsi\\Experiment\\Deployment',
@@ -66,7 +75,7 @@ const init = async (img_path, source_lang, target_lang) => {
         console.log(response.url());
         const imgBuffer = await response.buffer();
         const milis = +new Date();
-        writeFileSync(`download_${milis}.jpg`, imgBuffer);
+        writeFileSync(`./downloads/translate_${milis}.jpg`, imgBuffer);
         console.log('File downloaded');
     });
     await page.evaluate((url) => {
@@ -78,7 +87,9 @@ const init = async (img_path, source_lang, target_lang) => {
 
     // await fileChooser[0].accept([img_path]);
 
-    // await browser.close();
+    setTimeout(() => {}, 5501);
+
+    await browser.close();
 };
 
 init('C:\\Users\\qorya\\Downloads\\a.jpg', '', 'english');
